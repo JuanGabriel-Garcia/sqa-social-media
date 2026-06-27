@@ -1,0 +1,76 @@
+name: SQA Continuous Integration
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: 12345
+          MYSQL_DATABASE: social_media
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ---- CONFIGURAÇÃO E TESTE DO BACKEND (API) ----
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Build and Run Backend Tests
+        run: |
+          cd api
+          mvn clean test
+
+      # ---- CONFIGURAÇÃO E TESTE DO FRONTEND (CLIENT) ----
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd client
+          npm ci
+
+      - name: Run Jest Tests
+        run: |
+          cd client
+          npm run test # Adapte para o comando correto do seu package.json se necessário
+
+      # ---- INICIAR APLICAÇÃO LOCAL PARA PLAYWRIGHT ----
+      - name: Start Services and Run E2E Tests
+        run: |
+          # 1. Entra na API e sobe o backend em background
+          cd api
+          mvn spring-boot:run &
+
+          # 2. Volta para a raiz, entra no client, monta o build e sobe o frontend em background
+          cd ../client
+          npm run build
+          npm run start &
+
+          # 3. Volta para a raiz do projeto (onde está a pasta /tests do Playwright)
+          cd ..
+
+          # 4. Aguarda os serviços subirem totalmente antes de testar
+          sleep 15
+
+          # 5. Instala os navegadores necessários e roda os testes E2E na raiz
+          npx playwright install --with-deps
+          npx playwright test

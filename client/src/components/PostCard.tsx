@@ -77,6 +77,26 @@ export default function PostCard({
         {post.body}
       </p>
 
+      {/* --- INÍCIO DA NOVA FEATURE EXIGIDA PELO PROFESSOR --- */}
+      <div
+        style={{
+          display: "flex",
+          gap: "1.5rem",
+          marginBottom: "1rem",
+          fontSize: "0.95rem",
+          color: "var(--foreground)",
+          opacity: 0.85
+        }}
+      >
+        <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+          👍 <strong>{post.reactions?.likes ?? 0}</strong> Curtidas
+        </span>
+        <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+          👎 <strong>{post.reactions?.dislikes ?? 0}</strong> Descurtidas
+        </span>
+      </div>
+      {/* --- FIM DA NOVA FEATURE --- */}
+
       <div
         style={{
           display: "flex",
