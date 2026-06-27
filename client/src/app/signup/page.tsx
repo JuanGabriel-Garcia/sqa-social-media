@@ -137,7 +137,7 @@ export default function SignUp() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit}>
+          <form data-testid="signup-form" onSubmit={handleSubmit}>
             <Input
               label="Email"
               type="email"

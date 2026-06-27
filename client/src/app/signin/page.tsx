@@ -62,7 +62,7 @@ export default function SignIn() {
       if (err instanceof AxiosError) {
         setError(
           err.response?.data?.message ||
-            "Erro ao fazer login. Verifique suas credenciais."
+          "Erro ao fazer login. Verifique suas credenciais."
         );
       } else {
         setError("Erro ao fazer login. Verifique suas credenciais.");
@@ -119,7 +119,7 @@ export default function SignIn() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit}>
+          <form data-testid="signin-form" onSubmit={handleSubmit}>
             <Input
               label="Email"
               type="email"
