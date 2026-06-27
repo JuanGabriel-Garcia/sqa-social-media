@@ -51,26 +51,22 @@ jobs:
       - name: Run Jest Tests
         run: |
           cd client
-          npm run test # Adapte para o comando correto do seu package.json se necessário
+          npm run test
 
-      # ---- INICIAR APLICAÇÃO LOCAL PARA PLAYWRIGHT ----
+      # ---- INICIAR APLICAÇÃO LOCAL E RODAR PLAYWRIGHT ----
       - name: Start Services and Run E2E Tests
         run: |
-          # 1. Entra na API e sobe o backend em background
+          # 1. Inicia a API em background
           cd api
           mvn spring-boot:run &
 
-          # 2. Volta para a raiz, entra no client, monta o build e sobe o frontend em background
+          # 2. Vai para a pasta client, monta o build e inicia o frontend em background
           cd ../client
           npm run build
           npm run start &
 
-          # 3. Volta para a raiz do projeto (onde está a pasta /tests do Playwright)
-          cd ..
-
-          # 4. Aguarda os serviços subirem totalmente antes de testar
-          sleep 15
-
-          # 5. Instala os navegadores necessários e roda os testes E2E na raiz
+          # 3. Vai para a pasta dos testes E2E, instala as dependências isoladas e roda o Playwright
+          cd ../tests
+          npm ci
           npx playwright install --with-deps
-          npx playwright test
+          npm run test
